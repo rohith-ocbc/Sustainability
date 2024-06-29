@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<! –– Rohith Thatchan ––>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCBC Impact Calculator</title>
+    <style>
+        body{font-family:Arial,sans-serif;background-color:#F5F5F5;color:#333;padding:20px;margin:0}
+        .container{max-width:800px;margin:auto}
+        h1{color:#E60028;text-align:center}
+        form{background-color:#FFF;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);margin-bottom:20px}
+        .input-group{display:flex;align-items:center;margin-bottom:40px;position:relative}
+        .input-group label{margin:0;font-weight:bold;flex:1}
+        .input-group-container{width:100%}
+        input,#participantsSlider,#bagsAvoidedSlider{width:calc(100% - 40px);padding:10px;border:1px solid #ccc;border-radius:5px;margin-top:10px}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:25px;height:25px;background:#E60028;cursor:pointer;border-radius:50%}
+        input[type="range"]::-moz-range-thumb{width:25px;height:25px;background:#E60028;cursor:pointer;border-radius:50%}
+        .tooltip{position:absolute;background-color:#333;color:#fff;padding:5px 10px;border-radius:5px;font-size:14px;display:none;transform:translate(-50%,-100%)}
+        button{background-color:#E60028;color:#FFF;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;display:block;width:100%;font-size:16px}
+        .result-item{background-color:#FFF;padding:10px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);margin-top:10px;display:flex;align-items:center;text-align:left}
+        .result-item img{width:50px;height:50px;margin-right:20px}
+        .result-item p{margin:0;font-size:16px}
+        .assumption{font-size:12px;color:#666;margin-top:-30px;margin-bottom:20px}
+        .biome-img{width:100%;height:auto;margin-top:20px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OCBC Impact Calculator</h1>
+            <center><h4>GCFS Sustainability</h4></center>
+        <form id="impactForm">
+            <div class="input-group">
+                <div class="input-group-container">
+                    <label for="participantsSlider">👨‍👩‍👧‍👦 People engaged to create a reusable bag</label>
+                    <input type="range" id="participantsSlider" name="participantsSlider" min="0" max="5000" value="0" oninput="updateSliderValue('participantsSlider', 'participantsTooltip', 'participantsValue')" onmouseover="showTooltip('participantsTooltip')" onmouseout="hideTooltip('participantsTooltip')">
+                    <span class="tooltip" id="participantsTooltip">0</span>
+                </div>
+                <div id="participantsValue" style="text-align:center;">0</div>
+            </div>
+            <div class="input-group">
+                <div class="input-group-container">
+                    <label for="bagsAvoidedSlider">♻️ Plastic bags avoided by a person each year</label>
+                    <input type="range" id="bagsAvoidedSlider" name="bagsAvoidedSlider" min="0" max="300" value="125" oninput="updateSliderValue('bagsAvoidedSlider', 'bagsAvoidedTooltip', 'bagsAvoidedValue')" onmouseover="showTooltip('bagsAvoidedTooltip')" onmouseout="hideTooltip('bagsAvoidedTooltip')">
+                    <span class="tooltip" id="bagsAvoidedTooltip">125</span>
+                </div>
+                <div id="bagsAvoidedValue" style="text-align:center;">125</div>
+            </div>
+            <p class="assumption">*Study by the National University of Singapore (NUS) found that regular use of 1 reusable bag could replace the use of 125 single-use plastic bags.</p>
+            <button type="button" onclick="calculateImpact()">Calculate</button>
+        </form>
+        <div id="result"></div>
+        <img id="biomeImage" class="biome-img" src="" alt="Biome Image" style="display:none;">
+    </div>
+    <script>
+        function updateSliderValue(sliderId, tooltipId, displayId) {
+            var slider = document.getElementById(sliderId), tooltip = document.getElementById(tooltipId), display = document.getElementById(displayId);
+            tooltip.textContent = slider.value;
+            display.textContent = slider.value;
+            var value = slider.value, max = slider.max, min = slider.min, newPosition = 100 * ((value - min) / (max - min));
+            tooltip.style.left = "calc(".concat(newPosition, "% + (").concat(8 - .15 * newPosition, "px))")
+        }
+
+        function showTooltip(tooltipId) {
+            document.getElementById(tooltipId).style.display = "block"
+        }
+
+        function hideTooltip(tooltipId) {
+            document.getElementById(tooltipId).style.display = "none"
+        }
+
+        function calculateImpact() {
+            var peopleReached = parseInt(document.getElementById("participantsSlider").value), bagsAvoidedPerPerson = parseInt(document.getElementById("bagsAvoidedSlider").value);
+            if (isNaN(peopleReached) || isNaN(bagsAvoidedPerPerson)) return alert("Please enter valid numbers for participants and bags avoided per person."), void 0;
+            var plasticBagsReplaced = peopleReached * bagsAvoidedPerPerson, co2PerPlasticBag = 1.58, totalCO2eSaved = plasticBagsReplaced * co2PerPlasticBag, co2PerTree = 21.77, treesNeeded = totalCO2eSaved / co2PerTree,
+                landfillPerBag = .01, landfillSaved = peopleReached * landfillPerBag, waterPerPlasticBag = .9, waterSaved = plasticBagsReplaced * waterPerPlasticBag, treeImageSrc = treesNeeded > 1e3 ? "https://static.vecteezy.com/system/resources/previews/024/544/279/original/trees-on-transparent-background-for-illustration-free-png.png" : treesNeeded > 500 ? "https://static.vecteezy.com/system/resources/previews/024/544/279/original/trees-on-transparent-background-for-illustration-free-png.png" : "https://static.vecteezy.com/system/resources/previews/024/544/279/original/trees-on-transparent-background-for-illustration-free-png.png";
+            document.getElementById("result").innerHTML = '<div class="result-item"><img src="https://png.pngtree.com/png-vector/20240129/ourmid/pngtree-3d-illustration-of-air-pollution-png-image_11561049.png" alt="CO2e Icon"><p>Avoided <span style="color:#E60028; font-weight: bold;">'.concat(totalCO2eSaved.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","), ' kg of CO2e</span>, equivalent to traveling 566 times between Changi Airport and Tuas by car in Singapore.</p></div><div class="result-item"><img src="').concat(treeImageSrc, '" alt="Tree Icon"><p>Equivalent to <span style="color:#32CD32; font-weight: bold;">').concat(treesNeeded.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","), ' trees</span> needed to absorb the same amount of CO2 in a year.</p></div><div class="result-item"><img src="https://cdn-icons-png.freepik.com/256/8487/8487843.png?semt=ais_hybrid" alt="Water Icon"><p>Saved <span style="color:#1E90FF; font-weight: bold;">').concat(waterSaved.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","), ' liters</span> of water.</p></div>');
+
+            // Display biome image
+            var biomeImage = document.getElementById("biomeImage");
+            var impactLevel;
+            if (totalCO2eSaved > 5000) {
+                impactLevel = 'https://i.imgur.com/CODUcw9.png';
+            } else if (totalCO2eSaved > 2000) {
+                impactLevel = 'https://i.imgur.com/CODUcw9.png';
+            } else {
+                impactLevel = 'https://i.imgur.com/CODUcw9.png';
+            }
+            biomeImage.src = impactLevel;
+            biomeImage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
